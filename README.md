@@ -2,6 +2,9 @@
 
 <img src="assets/demo/hero.jpg" width="100%" alt="ЕБАШУ КАРТИНКИ">
 
+<a href="https://t.me/yurii_yurii86"><img src="https://img.shields.io/badge/Telegram-%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB_%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram-канал"></a>
+<a href="https://t.me/slane_slane"><img src="https://img.shields.io/badge/%D0%9D%D0%B0%D0%BF%D0%B8%D1%81%D0%B0%D1%82%D1%8C-@slane__slane-111111?style=for-the-badge&logo=telegram&logoColor=white" alt="Написать автору"></a>
+
 ### Навык для Claude: GPT Image 2 прямо в чате — по подписке ChatGPT, без API-ключей
 
 Пишешь «нарисуй» — Claude продумывает идею как арт-директор, рисует в GPT Image 2, сам проверяет и переделывает.<br>Обложки, постеры, реклама, люди с твоих фото в любом стиле, целые презентации.
@@ -176,4 +179,11 @@ ebashu-kartinki/
 
 Apache License 2.0 — см. [LICENSE](LICENSE) и [NOTICE](NOTICE).
 
-<div align="center"><sub>Сделано Юрием Слепнёвым</sub></div>
+## Автор
+
+**Юрий Слепнёв | ИНФОБИЗ БЕЗ ЕБШ**
+
+- Telegram-канал: [t.me/yurii_yurii86](https://t.me/yurii_yurii86)
+- Написать лично: [@slane_slane](https://t.me/slane_slane)
+
+Если навык пригодился — поставьте ⭐ репозиторию.
