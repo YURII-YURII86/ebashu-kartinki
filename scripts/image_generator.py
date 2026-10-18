@@ -34,7 +34,7 @@ MAX_RETRIES = 3  # retries for transient errors (524, timeouts, dropped connecti
 RETRY_DELAY_SECS = 5
 MAX_ASPECT_RETRIES = 2  # automatic regenerations when the aspect ratio is off
 ASPECT_TOLERANCE = 0.15  # allowed aspect ratio deviation (±15%)
-HTTP_USER_AGENT = "gpt-image2/1.0"
+HTTP_USER_AGENT = "ebashu-kartinki/1.0"
 
 # expected aspect ratio (width / height)
 ASPECT_RATIO_VALUES = {
@@ -100,7 +100,7 @@ class GptImage2Generator:
         if not self.api_key:
             raise ValueError(
                 "Не задан OPENAI_API_KEY. Передайте его через окружение "
-                "или укажите GPT_IMAGE2_ENV на приватный env-файл."
+                "или укажите EBASHU_KARTINKI_ENV на приватный env-файл."
             )
 
         self.aspect_ratio = aspect_ratio

@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
-# Install the gpt-image2 skill for Claude Code.
-#   bash install.sh            → ~/.claude/skills/gpt-image2
-#   bash install.sh --project  → ./.claude/skills/gpt-image2 (current project only)
+# Установка навыка ЕБАШУ КАРТИНКИ для Claude Code.
+#   bash install.sh            → ~/.claude/skills/ebashu-kartinki
+#   bash install.sh --project  → ./.claude/skills/ebashu-kartinki (только для текущего проекта)
 set -euo pipefail
 
 SRC="$(cd "$(dirname "$0")" && pwd)"
 if [[ "${1:-}" == "--project" ]]; then
-  DEST="$PWD/.claude/skills/gpt-image2"
+  DEST="$PWD/.claude/skills/ebashu-kartinki"
 else
-  DEST="$HOME/.claude/skills/gpt-image2"
+  DEST="$HOME/.claude/skills/ebashu-kartinki"
 fi
 
-echo "→ Installing to $DEST"
+echo "→ Ставлю в $DEST"
 mkdir -p "$DEST"
 rsync -a --delete --exclude '.git' --exclude '.venv' --exclude 'outputs' --exclude 'assets' \
   --exclude 'README*.md' "$SRC/" "$DEST/"
 
-echo "→ Python environment for slides (.venv)"
+echo "→ Окружение Python для презентаций (.venv)"
 if python3 -m venv "$DEST/.venv" 2>/dev/null; then
   "$DEST/.venv/bin/pip" install -q --upgrade pip
-  "$DEST/.venv/bin/pip" install -q -r "$DEST/requirements.txt" && echo "  ✅ slide dependencies installed"
+  "$DEST/.venv/bin/pip" install -q -r "$DEST/requirements.txt" && echo "  ✅ зависимости для презентаций установлены"
 else
-  echo "  ⚠️  could not create venv; single images still work, slides need: pip install -r requirements.txt"
+  echo "  ⚠️  не удалось создать окружение; картинки работают, для презентаций нужно: pip install -r requirements.txt"
 fi
 
 echo
 python3 "$DEST/scripts/doctor.py" || true
 echo
-echo "Done. Restart Claude Code and ask: «нарисуй …» / «draw …»"
+echo "Готово. Перезапустите Claude Code и пишите: «нарисуй …»"

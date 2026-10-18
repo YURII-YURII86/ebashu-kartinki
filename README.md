@@ -1,8 +1,10 @@
 <div align="center">
 
-# GPT Image 2 для Claude
+# ЕБАШУ КАРТИНКИ
 
-**Claude теперь рисует. Картинки, обложки, постеры и целые презентации в GPT Image 2 по вашей подписке ChatGPT, без API-ключей.**
+**Навык для Claude: GPT Image 2 прямо в чате — по подписке ChatGPT, без API-ключей.**
+
+Картинки, обложки, постеры, реклама, люди с ваших фото в любом стиле и целые презентации. Claude сам придумывает, рисует, проверяет и переделывает.
 
 <img src="assets/demo/thumbnail.jpg" width="49%" alt="Превью для YouTube"> <img src="assets/demo/infographic.jpg" width="49%" alt="Инфографика">
 <img src="assets/demo/product.jpg" width="32%" alt="Предметная съёмка"> <img src="assets/demo/icon.jpg" width="32%" alt="3D-иконка"> <img src="assets/demo/poster.jpg" width="32%" alt="Постер">
@@ -78,18 +80,18 @@ Codex — официальный CLI-агент OpenAI, он уже есть в�
 **Ставим навык:**
 
 ```bash
-git clone https://github.com/<ваш-аккаунт>/gpt-image2.git
+git clone https://github.com/<ваш-аккаунт>/ebashu-kartinki.git
 ```
 ```bash
-bash gpt-image2/install.sh
+bash ebashu-kartinki/install.sh
 ```
 
-Установщик скопирует навык в `~/.claude/skills/gpt-image2`, поставит зависимости для презентаций в отдельное окружение и проверит связь с Codex. Перезапустите Claude Code — готово.
+Установщик скопирует навык в `~/.claude/skills/ebashu-kartinki`, поставит зависимости для презентаций в отдельное окружение и проверит связь с Codex. Перезапустите Claude Code — готово.
 
 Проверить в любой момент:
 
 ```bash
-python3 ~/.claude/skills/gpt-image2/scripts/doctor.py --render
+python3 ~/.claude/skills/ebashu-kartinki/scripts/doctor.py --render
 ```
 
 ## Как пользоваться
@@ -111,7 +113,7 @@ Claude сам подберёт формат, напишет промпт, сге
 ### Вручную, без Claude
 
 ```bash
-cd ~/.claude/skills/gpt-image2
+cd ~/.claude/skills/ebashu-kartinki
 
 # одна картинка
 python3 scripts/gen_image.py --prompt "Минималистичный жёлтый кубик Рубика на тёмно-синем фоне" --aspect 1:1 --out out/cube.png
@@ -153,7 +155,7 @@ python3 scripts/gen_image.py --batch examples/batch/jobs.json --jobs 3
 ## Структура
 
 ```
-gpt-image2/
+ebashu-kartinki/
 ├── SKILL.md            ← инструкция для Claude
 ├── install.sh          ← установка
 ├── scripts/

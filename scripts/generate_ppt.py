@@ -48,11 +48,11 @@ CWD = Path.cwd()
 # =============================================================================
 
 def load_skill_env() -> None:
-    """Load optional settings from <skill>/.env (or GPT_IMAGE2_ENV). Process env always wins.
+    """Load optional settings from <skill>/.env (or EBASHU_KARTINKI_ENV). Process env always wins.
 
     Never reads the caller's project .env or walks parent directories.
     """
-    candidates = [Path(os.environ["GPT_IMAGE2_ENV"]).expanduser()] if os.environ.get("GPT_IMAGE2_ENV") else []
+    candidates = [Path(os.environ["EBASHU_KARTINKI_ENV"]).expanduser()] if os.environ.get("EBASHU_KARTINKI_ENV") else []
     candidates.append(SKILL_ROOT / ".env")
     try:
         from dotenv import load_dotenv

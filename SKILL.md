@@ -1,9 +1,9 @@
 ---
-name: gpt-image2
+name: ebashu-kartinki
 description: Генерирует картинки в GPT Image 2 прямо из Claude по подписке ChatGPT (через Codex), без API-ключа. Обложки, превью, постеры, предметка, иконки, инфографика; люди с фото узнаваемы в любой сцене и любом стиле; продуманная типографика; пачки вариантов и презентации в 25 стилях с упаковкой в .pptx. Use when the user asks to generate, draw or design an image, picture, illustration, banner, cover, thumbnail, poster, icon, mockup, slides, presentation or deck, or says «сгенерируй картинку», «нарисуй», «сделай обложку», «сделай презентацию», «GPT Image 2».
 ---
 
-# GPT Image 2 для Claude
+# ЕБАШУ КАРТИНКИ — GPT Image 2 в Claude
 
 Claude сам не рисует. Этот навык передаёт задачу **Codex** — агенту OpenAI, который есть в приложении ChatGPT или ставится отдельно. Codex рисует картинку встроенным генератором **GPT Image 2** по подписке ChatGPT и сохраняет PNG по нужному пути.
 
