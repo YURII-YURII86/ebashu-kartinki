@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+outputs/
+template_renders/
+template_cache/
+editable_scenes/
+.DS_Store

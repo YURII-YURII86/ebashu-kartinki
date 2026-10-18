@@ -1,0 +1,475 @@
+{
+  "version": "2",
+  "style_id": "creative-agency",
+  "style_name": "Креативное агентство",
+  "global_style": "Смелый коллаж и ритм вёрстки, как в портфолио агентства. Светлый фон, чёрный текст, два смелых акцента: оранжевый #FF5A1F и синий #2B59FF. Коллаж: вырезанные фигуры, обрывки бумаги, стикеры, крупные стрелки, наложения текста на формы. Динамичные диагонали и ритм.",
+  "theme": {
+    "primary": "#111111",
+    "accent": [
+      "#FF5A1F",
+      "#2B59FF"
+    ],
+    "background": "#F4F1EA",
+    "fonts": {
+      "title": "Заголовки — широкий гротеск Black капсом, иногда с наложением на изображения; текст — гротеск Regular.",
+      "body": "Заголовки — широкий гротеск Black капсом, иногда с наложением на изображения; текст — гротеск Regular."
+    }
+  },
+  "layouts": [
+    {
+      "id": "cover-hero-composition",
+      "page_type": "cover",
+      "summary": "Огромный заголовок капсом, частично перекрывает коллаж из геометрических вырезок и стрелок.",
+      "visual_signature": "Обложка",
+      "content_capacity": {
+        "title": "до 40 символов",
+        "subtitle": "1 строка подзаголовка",
+        "meta": "по желанию 1–2 строки: дата, автор, организация"
+      },
+      "best_for": [
+        "cover",
+        "opening",
+        "brand title"
+      ],
+      "avoid_for": [
+        "dense content",
+        "table",
+        "multi-metric data"
+      ],
+      "variation_tags": [
+        "cover",
+        "hero",
+        "title-focus"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": false,
+      "reuse_reason": "Сильный визуальный якорь — в одной презентации лучше использовать один раз.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Главный заголовок"
+          },
+          "subtitle": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 140,
+            "description": "Подзаголовок"
+          },
+          "meta": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 100,
+            "description": "Дата, автор или организация"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "agenda-structured-overview",
+      "page_type": "agenda",
+      "summary": "Пункты как этикетки-стикеры с номерами, наклеенные под разными углами.",
+      "visual_signature": "Содержание",
+      "content_capacity": {
+        "items": "3–6 пунктов: короткое название + по желанию 1 фраза"
+      },
+      "best_for": [
+        "agenda",
+        "overview",
+        "chapter list"
+      ],
+      "avoid_for": [
+        "single quote",
+        "large chart"
+      ],
+      "variation_tags": [
+        "agenda",
+        "list",
+        "overview"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": true,
+      "reuse_reason": "Универсальный макет: можно повторять, но лучше чередовать с другими.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Заголовок содержания"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 6,
+            "description": "Пункты содержания",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 45
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 90
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "items"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "section-divider-composition",
+      "page_type": "section",
+      "summary": "Номер раздела гигантский, оранжевый, с наложенной синей фигурой.",
+      "visual_signature": "Разделитель",
+      "content_capacity": {
+        "section_number": "Номер раздела (по желанию)",
+        "title": "до 45 символов",
+        "description": "1 короткая фраза"
+      },
+      "best_for": [
+        "section",
+        "chapter break",
+        "transition"
+      ],
+      "avoid_for": [
+        "dense content",
+        "data table"
+      ],
+      "variation_tags": [
+        "section",
+        "divider",
+        "number"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": true,
+      "reuse_reason": "Универсальный макет: можно повторять, но лучше чередовать с другими.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "section_number": {
+            "type": "string",
+            "maxLength": 15,
+            "description": "Номер раздела"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Название раздела"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 175,
+            "description": "Пояснение к разделу"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "content-structured-grid",
+      "page_type": "content",
+      "summary": "Асимметричная сетка: крупный подзаголовок, 3 коротких блока, коллажная фигура.",
+      "visual_signature": "Контентный слайд",
+      "content_capacity": {
+        "items": "2–4 пункта или карточки: заголовок + 1 фраза"
+      },
+      "best_for": [
+        "feature list",
+        "key points",
+        "cards"
+      ],
+      "avoid_for": [
+        "single huge number",
+        "long quote"
+      ],
+      "variation_tags": [
+        "cards",
+        "grid",
+        "points"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": true,
+      "reuse_reason": "Универсальный макет: можно повторять, но лучше чередовать с другими.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 70,
+            "description": "Заголовок слайда"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 4,
+            "description": "Ключевые пункты",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 120
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "comparison-two-zone",
+      "page_type": "content",
+      "summary": "Две половины разных цветов с крупной стрелкой «→» между ними.",
+      "visual_signature": "Сравнение",
+      "content_capacity": {
+        "left": "заголовок + 2–3 коротких пункта",
+        "right": "заголовок + 2–3 коротких пункта"
+      },
+      "best_for": [
+        "comparison",
+        "before after",
+        "pros cons"
+      ],
+      "avoid_for": [
+        "single message",
+        "long list"
+      ],
+      "variation_tags": [
+        "split",
+        "comparison",
+        "two-column"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": true,
+      "reuse_reason": "Универсальный макет: можно повторять, но лучше чередовать с другими.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Заголовок сравнения"
+          },
+          "left": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 300,
+            "description": "Левая колонка"
+          },
+          "right": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 300,
+            "description": "Правая колонка"
+          }
+        },
+        "required": [
+          "title",
+          "left",
+          "right"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "data-visual-callouts",
+      "page_type": "data",
+      "summary": "Цифры гигантским шрифтом, перекрытые цветными плашками.",
+      "visual_signature": "Слайд с цифрами",
+      "content_capacity": {
+        "metrics": "2–5 ключевых показателей: число + короткая подпись"
+      },
+      "best_for": [
+        "metrics",
+        "kpi",
+        "chart"
+      ],
+      "avoid_for": [
+        "long text",
+        "quote"
+      ],
+      "variation_tags": [
+        "data",
+        "metrics",
+        "chart"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": true,
+      "reuse_reason": "Универсальный макет: можно повторять, но лучше чередовать с другими.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Заголовок слайда с цифрами"
+          },
+          "metrics": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 5,
+            "description": "Ключевые показатели",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "metric": {
+                  "type": "string",
+                  "maxLength": 35
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 80
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "metrics"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "quote-statement-focus",
+      "page_type": "quote",
+      "summary": "Цитата огромными буквами капсом поперёк кадра.",
+      "visual_signature": "Цитата",
+      "content_capacity": {
+        "quote": "1 фраза до 120 символов",
+        "attribution": "подпись автора, 1 строка"
+      },
+      "best_for": [
+        "quote",
+        "key message",
+        "statement"
+      ],
+      "avoid_for": [
+        "data table",
+        "long list"
+      ],
+      "variation_tags": [
+        "quote",
+        "statement",
+        "focus"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": false,
+      "reuse_reason": "Сильный визуальный якорь — в одной презентации лучше использовать один раз.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "quote": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 140,
+            "description": "Главная цитата"
+          },
+          "attribution": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 70,
+            "description": "Автор или пояснение"
+          }
+        },
+        "required": [
+          "quote"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "closing-summary-contact",
+      "page_type": "closing",
+      "summary": "«Давайте сделаем» крупно, контакты на стикере.",
+      "visual_signature": "Финал",
+      "content_capacity": {
+        "title": "Спасибо / следующий шаг / короткий вывод",
+        "contact": "2–4 строки контактов"
+      },
+      "best_for": [
+        "closing",
+        "thanks",
+        "contacts",
+        "next steps"
+      ],
+      "avoid_for": [
+        "dense content",
+        "data table"
+      ],
+      "variation_tags": [
+        "closing",
+        "contact",
+        "summary"
+      ],
+      "external_image_slots": [],
+      "reuse_friendly": false,
+      "reuse_reason": "Сильный визуальный якорь — в одной презентации лучше использовать один раз.",
+      "json_schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60,
+            "description": "Главная финальная фраза"
+          },
+          "subtitle": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 140,
+            "description": "Короткая финальная фраза"
+          },
+          "contact": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 225,
+            "description": "Контакты"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
