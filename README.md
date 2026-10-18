@@ -80,7 +80,7 @@ Codex — официальный CLI-агент OpenAI, он уже есть в�
 **Ставим навык:**
 
 ```bash
-git clone https://github.com/<ваш-аккаунт>/ebashu-kartinki.git
+git clone https://github.com/YURII-YURII86/ebashu-kartinki.git
 ```
 ```bash
 bash ebashu-kartinki/install.sh
