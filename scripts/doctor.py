@@ -38,10 +38,10 @@ def main() -> int:
     else:
         missing = [pkg for mod, pkg in DEPS.items() if importlib.util.find_spec(mod) is None]
     if missing:
-        print(f"⚠️  Slides need: {' '.join(missing)}  →  pip install -r requirements.txt"
-              "\n   (single images work without them)")
+        print(f"⚠️  Для презентаций не хватает: {' '.join(missing)}  →  pip install -r requirements.txt"
+              "\n   (отдельные картинки работают и без них)")
     else:
-        print("✅ Python packages for slides")
+        print("✅ Пакеты для презентаций на месте")
 
     try:
         exe = codex_command()[0]
@@ -50,25 +50,25 @@ def main() -> int:
         status = subprocess.run([exe, "login", "status"], capture_output=True, text=True)
         text = (status.stdout + status.stderr).strip()
         if status.returncode == 0 and "logged in" in text.lower():
-            print(f"✅ {text.splitlines()[0]}")
+            print("✅ Вход через ChatGPT выполнен")
         else:
             ok = False
-            print(f"❌ Not signed in: run `{exe} login` and sign in with ChatGPT")
+            print(f"❌ Нет входа: выполните `{exe} login` и войдите через ChatGPT")
     except Exception as exc:
         ok = False
         print(f"❌ {exc}")
 
     if ok and a.render:
         out = Path(tempfile.mkdtemp()) / "doctor.png"
-        print("→ test render…", flush=True)
+        print("→ пробная генерация…", flush=True)
         try:
             run_codex_image("A single ripe lemon on a plain white background, soft studio light.", out)
-            print(f"✅ Test image: {out}")
+            print(f"✅ Пробная картинка: {out}")
         except Exception as exc:
             ok = False
-            print(f"❌ Test render failed: {exc}")
+            print(f"❌ Пробная генерация не удалась: {exc}")
 
-    print("\nReady 🚀" if ok else "\nFix the items above and run again.")
+    print("\nВсё готово 🚀" if ok else "\nИсправьте пункты выше и запустите снова.")
     return 0 if ok else 1
 
 

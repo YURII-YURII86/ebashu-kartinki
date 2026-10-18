@@ -175,13 +175,13 @@ def main() -> None:
 
     src = Path(args.input)
     if not src.exists():
-        print(f"Error: {src} not found", file=sys.stderr)
+        print(f"Ошибка: {src} не найден", file=sys.stderr)
         sys.exit(1)
 
     dst = Path(args.output) if args.output else src.with_suffix(".json")
     plan = md_to_plan(src.read_text(encoding="utf-8"))
     dst.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[OK] {src} -> {dst}  ({plan['total_slides']} slides)")
+    print(f"[OK] {src} -> {dst}  (слайдов: {plan['total_slides']})")
 
 
 if __name__ == "__main__":

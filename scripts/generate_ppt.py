@@ -119,10 +119,10 @@ def _resolve_session(session_id: str) -> str:
     for s in sessions:
         if s["timestamp"].startswith(session_id):
             return s["dir"]
-    print(f"[X] Session not found: {session_id}")
-    print(f"    Tried: {session_id}")
+    print(f"[X] Сессия не найдена: {session_id}")
+    print(f"    Искал: {session_id}")
     if candidate != session_id:
-        print(f"    Tried: {candidate}")
+        print(f"    Искал: {candidate}")
     sys.exit(1)
 
 
@@ -130,7 +130,7 @@ def _load_metadata(session_dir: str) -> Dict[str, Any]:
     """Load metadata.json from a session directory."""
     meta_path = os.path.join(session_dir, METADATA_FILENAME)
     if not os.path.isfile(meta_path):
-        print(f"[X] No metadata.json found in {session_dir}")
+        print(f"[X] Нет metadata.json в {session_dir}")
         sys.exit(1)
     with open(meta_path, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -409,6 +409,28 @@ def _format_external_slots_constraint(external_slots: List[Dict[str, Any]]) -> s
         )
         if slot.get("auto_layout_reason"):
             slot_lines.append(f"  План вёрстки: {slot.get('auto_layout_reason')}")
+    # The corner map alone is often ignored, so also state the free text zone in plain words.
+    zone_lines = []
+    for slot in external_slots:
+        bbox = slot.get("bbox")
+        if not bbox or len(bbox) != 4:
+            continue
+        x, y, w, h = (float(v) for v in bbox)
+        if x >= 0.35:
+            zone_lines.append(f"весь текст — только в левых {max(20, int((x - 0.04) * 100))}% ширины кадра")
+        elif x + w <= 0.65:
+            zone_lines.append(f"весь текст — только правее {min(80, int((x + w + 0.04) * 100))}% ширины кадра")
+        elif y >= 0.35:
+            zone_lines.append(f"весь текст — только в верхних {max(20, int((y - 0.04) * 100))}% высоты кадра")
+        elif y + h <= 0.65:
+            zone_lines.append(f"весь текст — только ниже {min(80, int((y + h + 0.04) * 100))}% высоты кадра")
+    zone_text = ""
+    if zone_lines:
+        zone_text = (
+            "\nГраница зоны текста: " + "; ".join(dict.fromkeys(zone_lines))
+            + ". Заголовок и строки, которые не помещаются, переноси на новые строки или уменьшай кегль — "
+            "ни одна буква не должна заходить в зону фото.\n"
+        )
     return (
         "\n\n[Слоты реальных фото — строго]\n"
         "Перед отрисовкой спланируй вёрстку с учётом объёма текста, числа реальных фото, их пропорций и уголков на референсе. "
@@ -416,6 +438,7 @@ def _format_external_slots_constraint(external_slots: List[Dict[str, Any]]) -> s
         "Тонкие уголки на референсе отмечают только зоны, куда потом кодом вставят реальные фото; "
         "это не элементы дизайна, не рамки, не карточки, не маски и не пустые блоки.\n"
         + "\n".join(slot_lines)
+        + zone_text
         + "\nНе ставь в эти зоны ничего важного: заголовки, текст, цифры, иконки, людей или главные фото. "
         + "Фон под зонами должен продолжаться естественно: тот же цвет, фактура бумаги или лёгкий декор. "
         + "Запрещены в зонах белые/светлые прямоугольники, пустые карточки, плейсхолдеры, рамки, тени, прозрачные дыры и любые видимые заготовки. "
@@ -2779,7 +2802,7 @@ def generate_slide(
     else:
         from image_generator import GptImage2Generator as _Backend
 
-    print(f"  Generating slide {slide_number} via {backend} backend ...")
+    print(f"  Генерирую слайд {slide_number} ({backend}) ...")
 
     generator = _Backend(aspect_ratio="16:9")
     image_path = os.path.join(output_dir, "images", f"slide-{slide_number:02d}.png")
@@ -2793,7 +2816,7 @@ def generate_slide(
         output_path=image_path,
         reference_image_path=reference_image_path,
     )
-    print(f"  Slide {slide_number} saved: {image_path}")
+    print(f"  Слайд {slide_number} сохранён: {image_path}")
     return image_path
 
 
@@ -2806,7 +2829,7 @@ def save_prompts(output_dir: str, prompts_data: Dict[str, Any]) -> str:
     prompts_path = os.path.join(output_dir, "prompts.json")
     with open(prompts_path, "w", encoding="utf-8") as f:
         json.dump(prompts_data, f, ensure_ascii=False, indent=2)
-    print(f"  Prompts saved: {prompts_path}")
+    print(f"  Промпты сохранены: {prompts_path}")
     return prompts_path
 
 
@@ -2922,7 +2945,7 @@ def generate_pptx(
     pptx_path = os.path.join(output_dir, f"{safe_title}.pptx")
     prs.save(pptx_path)
     overlay_msg = f", {overlay_added} external image overlays" if overlay_added else ""
-    print(f"  📑 PPTX generated: {pptx_path}  ({added} slides{overlay_msg})")
+    print(f"  📑 PPTX собран: {pptx_path}  (слайдов: {added}{overlay_msg})")
     return pptx_path
 
 
@@ -2949,9 +2972,9 @@ def cmd_list_sessions(args: argparse.Namespace) -> None:
     base_dir = args.output or str(CWD / OUTPUT_BASE_DIR)
     sessions = _find_sessions(base_dir)
     if not sessions:
-        print("No sessions found.")
+        print("Сессий нет.")
         return
-    print(f"{'Session':<20} {'Slides':<8} Title")
+    print(f"{'Сессия':<20} {'Слайдов':<8} Название")
     print("-" * 60)
     for s in sessions:
         print(f"{s['timestamp']:<20} {s['slide_count']:<8} {s['title']}")
@@ -2966,16 +2989,16 @@ def cmd_ingest_pptx(args: argparse.Namespace) -> None:
     """
     pptx_path = args.ingest_pptx
     if not os.path.isfile(pptx_path):
-        print(f"[X] File not found: {pptx_path}")
+        print(f"[X] Файл не найден: {pptx_path}")
         sys.exit(1)
 
     # Render PPTX to PNGs
     sys.path.insert(0, str(SCRIPT_DIR))
     from render_template import render_pptx_to_pngs
 
-    print(f"Ingesting: {pptx_path}")
+    print(f"Импортирую: {pptx_path}")
     images_dir = render_pptx_to_pngs(pptx_path)
-    print(f"Rendered to: {images_dir}")
+    print(f"Отрендерено в: {images_dir}")
 
     # Create session directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -3035,14 +3058,14 @@ def cmd_ingest_pptx(args: argparse.Namespace) -> None:
     }
     _save_metadata(metadata, session_dir)
 
-    print(f"Session created: {session_dir}")
-    print(f"  {len(slide_order)} slides ingested")
-    print(f"  metadata.json written with placeholder specs")
+    print(f"Сессия создана: {session_dir}")
+    print(f"  Импортировано слайдов: {len(slide_order)}")
+    print(f"  metadata.json создан с пустыми slide_spec")
     print()
-    print("Next: Agent should Read each page PNG and fill in slide_specs.")
-    print("  For each slide, describe elements with type/content/position/style.")
-    print("  Then use --edit to refine individual slides, or --plan to regenerate.")
-    print(f"  Session timestamp: {session_id}")
+    print("Дальше: посмотри каждую страницу (PNG) и заполни slide_spec.")
+    print("  Для каждого слайда опиши элементы: type / content / position / style.")
+    print("  Потом правь слайды через --edit или пересобери через --plan.")
+    print(f"  Сессия: {session_id}")
 
 
 def cmd_edit_slide(args: argparse.Namespace) -> None:
@@ -3061,7 +3084,7 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
 
     slide_key = str(args.edit)
     if slide_key not in metadata.get("slides", {}):
-        print(f"[X] Slide {args.edit} not found in session {args.session}")
+        print(f"[X] Слайд {args.edit} не найден в сессии {args.session}")
         sys.exit(1)
 
     slide_data = metadata["slides"][slide_key]
@@ -3071,8 +3094,8 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     # Get the current spec
     current_spec = _get_latest_slide_spec(metadata, args.edit)
     if not current_spec:
-        print(f"[X] No spec found for slide {args.edit} (version {current_version})")
-        print("    This session may not have slide_spec data. Consider regenerating.")
+        print(f"[X] Нет slide_spec для слайда {args.edit} (версия {current_version})")
+        print("    В этой сессии нет slide_spec. Лучше пересобрать слайд.")
         sys.exit(1)
 
     # Apply element updates if provided
@@ -3081,7 +3104,7 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
         try:
             element_updates = json.loads(args.element_updates)
         except json.JSONDecodeError as e:
-            print(f"[X] Invalid element-updates JSON: {e}")
+            print(f"[X] Некорректный JSON в --element-updates: {e}")
             sys.exit(1)
 
     updated_spec = apply_spec_updates(current_spec, element_updates)
@@ -3094,13 +3117,13 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     elif args.edit_prompt:
         edit_prompt = args.edit_prompt
         if not element_updates:
-            print("(!) Warning: --edit-prompt used without --element-updates.")
-            print("    The slide_spec in metadata will NOT be updated.")
-            print("    Future structured edits may reference stale content.")
+            print("(!) --edit-prompt без --element-updates:")
+            print("    slide_spec в metadata НЕ обновится,")
+            print("    следующие точечные правки могут опираться на старый текст.")
     elif element_updates:
         edit_prompt = construct_edit_prompt(current_spec, element_updates)
     else:
-        print("[X] No edit prompt or element updates provided")
+        print("[X] Не задано, что менять: нужен --edit-prompt или --element-updates")
         sys.exit(1)
 
     # Get reference image (current slide image)
@@ -3108,7 +3131,7 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     if not os.path.isfile(ref_path):
         ref_path = os.path.join(images_dir, f"slide-{args.edit:02d}.png")
     if not os.path.isfile(ref_path):
-        print(f"(!) Reference image not found at {ref_path}, generating without reference")
+        print(f"(!) Референс не найден ({ref_path}), генерирую без него")
         ref_path = None
 
     reference_images: Optional[Union[str, List[str]]] = ref_path
@@ -3136,14 +3159,14 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     with open(prompt_abs, "w", encoding="utf-8") as f:
         f.write(edit_prompt)
 
-    print(f"Editing slide {args.edit} (v{current_version} -> v{new_version})")
+    print(f"Правлю слайд {args.edit} (v{current_version} -> v{new_version})")
     if element_updates:
         for elem_id, changes in element_updates.items():
             for k, v in changes.items():
                 old = current_spec.get("elements", {}).get(elem_id, {}).get(k, "?")
                 print(f"  {elem_id}.{k}: {old} -> {v}")
-    print(f"  Reference: {reference_images or '(none)'}")
-    print(f"  Edit prompt: {edit_prompt[:200]}...")
+    print(f"  Референс: {reference_images or '(нет)'}")
+    print(f"  Промпт правки: {edit_prompt[:200]}...")
 
     # Generate new image
     image_path = generate_slide(
@@ -3153,7 +3176,7 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     )
 
     if not image_path:
-        print("[X] Edit generation failed")
+        print("[X] Правка не удалась")
         sys.exit(1)
 
     # Also save versioned copy of the new image
@@ -3179,9 +3202,9 @@ def cmd_edit_slide(args: argparse.Namespace) -> None:
     if not args.no_pptx:
         generate_pptx(session_dir, slide_nums, title=metadata.get("title", "Untitled"), metadata=metadata)
 
-    print(f"Slide {args.edit} updated to v{new_version}")
-    print(f"  Image: {image_path}")
-    print(f"  Metadata saved")
+    print(f"Слайд {args.edit} обновлён до v{new_version}")
+    print(f"  Картинка: {image_path}")
+    print(f"  metadata сохранён")
 
 
 def cmd_rollback_slide(args: argparse.Namespace) -> None:
@@ -3198,7 +3221,7 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
 
     slide_key = str(args.rollback)
     if slide_key not in metadata.get("slides", {}):
-        print(f"[X] Slide {args.rollback} not found in session {args.session}")
+        print(f"[X] Слайд {args.rollback} не найден в сессии {args.session}")
         sys.exit(1)
 
     slide_data = metadata["slides"][slide_key]
@@ -3207,9 +3230,9 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
 
     target = _get_version_info(metadata, args.rollback, target_version)
     if not target:
-        print(f"[X] Version {target_version} not found for slide {args.rollback}")
+        print(f"[X] У слайда {args.rollback} нет версии {target_version}")
         available = sorted(v.get("version", 0) for v in slide_data.get("versions", []))
-        print(f"    Available versions: {available}")
+        print(f"    Есть версии: {available}")
         sys.exit(1)
 
     target_spec = target.get("spec", {})
@@ -3246,25 +3269,25 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
             # Ingested slide with placeholder spec: regenerate from reference image
             ref_abs = os.path.join(session_dir, target_image_rel)
             if os.path.isfile(ref_abs):
-                print(f"  Spec has no elements; using reference image as visual guide")
+                print(f"  В slide_spec нет элементов, ориентируюсь на референс")
                 prompt = (
                     "Создай слайд, полностью повторяющий визуальный стиль референса.\n"
                     "Сохрани ту же вёрстку, палитру, шрифты и декор.\n"
                     "Если на референсе есть текст, сохрани его содержание и положение."
                 )
             else:
-                print(f"[X] No elements in spec and no reference image found for version {target_version}")
+                print(f"[X] Для версии {target_version} нет ни элементов slide_spec, ни референса")
                 sys.exit(1)
         else:
-            print(f"[X] No elements in spec and no prompt file or reference image for version {target_version}")
-            print(f"    This often happens with ingested slides before the Agent fills in slide_specs.")
-            print(f"    Have the Agent Read each page PNG and fill in the spec elements first.")
+            print(f"[X] Для версии {target_version} нет ни элементов, ни промпта, ни референса")
+            print(f"    Так бывает у импортированных слайдов, пока не заполнены slide_spec.")
+            print(f"    Сначала посмотри страницы и заполни элементы slide_spec.")
             sys.exit(1)
 
     # Get reference image from target version
     ref_path = os.path.join(session_dir, target_image_rel) if target_image_rel else None
     if ref_path and not os.path.isfile(ref_path):
-        print(f"(!) Reference image not found, regenerating without reference")
+        print(f"(!) Референс не найден, генерирую без него")
         ref_path = None
 
     # Backup current image
@@ -3281,7 +3304,7 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
     with open(prompt_abs, "w", encoding="utf-8") as f:
         f.write(prompt)
 
-    print(f"Rolling back slide {args.rollback}: v{current_version} -> v{new_version} (from v{target_version})")
+    print(f"Откат слайда {args.rollback}: v{current_version} -> v{new_version} (из v{target_version})")
 
     image_path = generate_slide(
         prompt, args.rollback, session_dir,
@@ -3290,7 +3313,7 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
     )
 
     if not image_path:
-        print("[X] Rollback generation failed")
+        print("[X] Откат не удался")
         sys.exit(1)
 
     # Save versioned copy of new image
@@ -3316,7 +3339,7 @@ def cmd_rollback_slide(args: argparse.Namespace) -> None:
     if not args.no_pptx:
         generate_pptx(session_dir, slide_nums, title=metadata.get("title", "Untitled"), metadata=metadata)
 
-    print(f"Slide {args.rollback} rolled back (v{new_version}, based on v{target_version})")
+    print(f"Слайд {args.rollback} откачен (v{new_version}, на основе v{target_version})")
 
 
 # =============================================================================
@@ -3640,9 +3663,9 @@ def main() -> None:
     selected_slide_numbers = [s["slide_number"] for s in slides]
 
     print("=" * 60)
-    print("PPT Generator (gpt-image-2) Started")
+    print("Генерация презентации (GPT Image 2)")
     print("=" * 60)
-    print(f"Style: {style_path}")
+    print(f"Стиль: {style_path}")
     print(
         f"RuntimeProfile: {runtime_profile.get('source')} "
         f"(kind={runtime_profile.get('source_kind')}, "
@@ -3650,11 +3673,11 @@ def main() -> None:
         f"hash={runtime_profile.get('source_hash')}, "
         f"{len(runtime_profile.get('layouts', []))} layouts)"
     )
-    print(f"Strict reference mode: {strict_reference_mode}")
-    print(f"Slides: {len(slides)} / {total_slides}")
-    print(f"Output: {output_dir}")
-    print(f"Concurrency: {args.concurrency}")
-    print(f"Backend: {args.backend}")
+    print(f"Строгое следование шаблону: {strict_reference_mode}")
+    print(f"Слайдов: {len(slides)} / {total_slides}")
+    print(f"Папка: {output_dir}")
+    print(f"Параллельно: {args.concurrency}")
+    print(f"Генератор: {args.backend}")
     print("=" * 60)
     print()
 
@@ -3693,7 +3716,7 @@ def main() -> None:
             metadata["slide_order"] = existing_order + new_order
         metadata["generated_at"] = datetime.now().isoformat()
         metadata["runtime_profile"] = runtime_profile_summary(runtime_profile)
-        print(f"Merging with existing metadata ({len(existing_order)} existing + {len(new_order)} new slides)")
+        print(f"Дополняю сессию: было {len(existing_order)}, новых {len(new_order)}")
     else:
         metadata = {
             "version": 1,
@@ -3742,7 +3765,7 @@ def main() -> None:
 
         existing = os.path.join(output_dir, "images", f"slide-{slide_number:02d}.png")
         if os.path.exists(existing) and not args.prepare_only:
-            print(f"Slide {slide_number}: already exists, skipping.")
+            print(f"Слайд {slide_number} уже есть, пропускаю.")
             prompts_data["slides"].append({
                 "slide_number": slide_number,
                 "page_type": page_type,
@@ -3813,7 +3836,7 @@ def main() -> None:
 
             def _run(task):
                 n = task["slide_number"]
-                print(f">️  [slide {n}] start ({task['page_type']}{' / ref' if task.get('reference_image') else ''})")
+                print(f"▶️  [слайд {n}] старт ({task['page_type']}{' / с референсом' if task.get('reference_image') else ''})")
                 try:
                     path = generate_slide(
                         task["prompt"], n, output_dir,
@@ -3823,10 +3846,10 @@ def main() -> None:
                     if not path:
                         raise RuntimeError("generator returned empty image path")
                     sanitize_external_image_regions(output_dir, n, task.get("slide_spec"))
-                    print(f"[OK] [slide {n}] done")
+                    print(f"[OK] [слайд {n}] готов")
                     return n, path
                 except Exception as e:
-                    print(f"[X] [slide {n}] failed: {e}")
+                    print(f"[X] [слайд {n}] ошибка: {e}")
                     return n, None
 
             with ThreadPoolExecutor(max_workers=worker_count) as executor:
@@ -3890,9 +3913,9 @@ def main() -> None:
     _save_metadata(metadata, output_dir)
 
     if args.prepare_only:
-        print("[OK] Prompt preparation complete (no image API calls were made).")
-        print(f"Prompts: {os.path.join(output_dir, 'prompts.json')}")
-        print(f"Metadata: {os.path.join(output_dir, METADATA_FILENAME)}")
+        print("[OK] Промпты собраны, генерация не запускалась.")
+        print(f"Промпты: {os.path.join(output_dir, 'prompts.json')}")
+        print(f"Метаданные: {os.path.join(output_dir, METADATA_FILENAME)}")
         return
 
     failed_slides = sorted(
@@ -3956,7 +3979,7 @@ def main() -> None:
                 print(f"🔧 Авто-исправление вставки фото, раунд {repair_round}/{max_repair_rounds}: {len(repair_updates)} слайдов")
                 print("=" * 60)
                 for n, updates in repair_updates.items():
-                    print(f"slide {n}: {updates}")
+                    print(f"слайд {n}: {updates}")
                     cmd_args = copy.copy(args)
                     cmd_args.edit = n
                     cmd_args.session = output_dir
@@ -3985,8 +4008,8 @@ def main() -> None:
             print("[X] Проверка вставки фото не пройдена, результат не считается успешным.")
             for n, review in sorted(failed_reviews.items()):
                 issue = review.get("cover_issue") or review.get("recommendation") or "unknown overlay issue"
-                print(f"    slide {n}: {issue}")
-            print(f"    Trace: {os.path.join(output_dir, 'external_image_trace')}")
+                print(f"    слайд {n}: {issue}")
+            print(f"    Подробности: {os.path.join(output_dir, 'external_image_trace')}")
             sys.exit(1)
 
     editable_pptx_path = None
@@ -4012,16 +4035,16 @@ def main() -> None:
 
     print()
     print("=" * 60)
-    print("Generation Complete!")
+    print("Готово!")
     print("=" * 60)
-    print(f"Output directory: {output_dir}")
-    print(f"Metadata:    {os.path.join(output_dir, 'metadata.json')}")
+    print(f"Папка:       {output_dir}")
+    print(f"Метаданные:  {os.path.join(output_dir, 'metadata.json')}")
     if pptx_path:
-        print(f"PPTX file:   {pptx_path}")
+        print(f"Презентация: {pptx_path}")
     if editable_pptx_path:
-        print(f"Editable:    {editable_pptx_path}")
+        print(f"Редактируемая: {editable_pptx_path}")
     if editable_render_dir:
-        print(f"Editable render: {editable_render_dir}")
+        print(f"Рендер для проверки: {editable_render_dir}")
     print()
 
 

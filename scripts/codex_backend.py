@@ -112,8 +112,8 @@ def codex_command() -> List[str]:
     exe = find_codex()
     if not exe:
         raise RuntimeError(
-            "Codex CLI not found. Install the ChatGPT desktop app (it bundles Codex) "
-            "or the Codex CLI, sign in with `codex login`, or set CODEX_CMD."
+            "Codex не найден. Установите приложение ChatGPT для компьютера (Codex внутри) "
+            "или Codex CLI (npm i -g @openai/codex), войдите через `codex login` либо укажите путь в CODEX_CMD."
         )
     return [exe] + shlex.split(CODEX_EXEC_ARGS)
 
@@ -149,6 +149,16 @@ def build_instruction(
         else:
             note = reference_notes[idx - 1] if idx - 1 < len(reference_notes) else "visual reference"
         lines.append(f"- Reference image {idx} (attached; {note}): {ref}")
+    plain = [r for r in references if not is_base_ref(r) and not is_identity_ref(r)]
+    if plain:
+        lines.append(
+            "- REFERENCES: take from each reference only what its role says (product, style, composition, palette, "
+            "lighting, typography, pose, location…) and follow the prompt for everything else. Do not copy a "
+            "reference's text, people, logos or objects unless its role asks for them. A style reference gives the visual "
+            "language (palette, texture, medium, type of shapes), never its exact layout or drawing: compose new forms "
+            "unless a composition role is given. A product reference must "
+            "keep the exact shape, proportions, materials, colors and label of the product."
+        )
     if any(is_base_ref(r) for r in references):
         lines.append("- " + BASE_RULES)
     elif any(is_identity_ref(r) for r in references):
@@ -175,15 +185,15 @@ def _run_codex(instruction: str, out: Path, refs: Sequence[str], timeout: int) -
             check=False,
         )
     except subprocess.TimeoutExpired as exc:
-        raise RuntimeError(f"Codex did not finish in {exc.timeout}s: {out.name}") from exc
+        raise RuntimeError(f"Codex не уложился в {exc.timeout} с: {out.name}") from exc
     if result.returncode != 0:
         tail = (result.stderr or result.stdout or "").strip()[-800:]
-        raise RuntimeError(f"codex exec failed (code {result.returncode}):\n{tail}")
+        raise RuntimeError(f"Codex завершился с ошибкой (код {result.returncode}):\n{tail}")
     if not out.exists():
         tail = (result.stdout or "").strip()[-400:]
-        raise RuntimeError(f"Codex finished but did not save {out}\n{tail}")
+        raise RuntimeError(f"Codex закончил, но не сохранил {out}\n{tail}")
     if out.stat().st_size < MIN_IMAGE_BYTES:
-        raise RuntimeError(f"Saved file is too small ({out.stat().st_size} bytes): {out}")
+        raise RuntimeError(f"Сохранённый файл слишком маленький ({out.stat().st_size} байт): {out}")
 
 
 def run_codex_image(
@@ -200,7 +210,7 @@ def run_codex_image(
     refs = [str(Path(r).expanduser().resolve()) for r in references]
     for ref in refs:
         if not os.path.isfile(ref):
-            raise FileNotFoundError(f"Reference image not found: {ref}")
+            raise FileNotFoundError(f"Референс не найден: {ref}")
 
     model = os.getenv("CODEX_IMAGE_MODEL", "gpt-image-2")
     limit = timeout or int(os.getenv("CODEX_TIMEOUT_SECS", str(DEFAULT_TIMEOUT_SECS)))
@@ -217,7 +227,7 @@ def run_codex_image(
             break
         if attempt == 2:
             got = png_size(out)
-            print(f"⚠️  {out.name}: asked {aspect}, got {got[0]}x{got[1]}; kept as is", flush=True)
+            print(f"⚠️  {out.name}: просили {aspect}, получилось {got[0]}x{got[1]}; оставляю как есть", flush=True)
     return out
 
 
@@ -227,7 +237,7 @@ class CodexImageBackend:
     def __init__(self, aspect_ratio: str = "16:9") -> None:
         self.aspect_ratio = aspect_ratio if aspect_ratio in ASPECT_SIZES else "16:9"
         codex_command()  # fail early with a clear message if Codex is missing
-        print(f"🎨 Codex bridge ready (gpt-image-2, {self.aspect_ratio})")
+        print(f"🎨 Мост к Codex готов (GPT Image 2, {self.aspect_ratio})")
 
     @staticmethod
     def _normalize_refs(reference_image_path: Optional[Union[str, List[str]]]) -> List[str]:
@@ -247,7 +257,7 @@ class CodexImageBackend:
         index = scene_data.get("index", 0)
         prompt = scene_data.get("image_prompt", "")
         if not prompt:
-            raise ValueError(f"Slide {index} has no image_prompt")
+            raise ValueError(f"У слайда {index} нет промпта")
 
         refs = self._normalize_refs(reference_image_path)
         notes: List[str] = []
@@ -268,7 +278,7 @@ class CodexImageBackend:
                 "frames, white rectangles or the corner marks themselves."
             )
 
-        print(f"🔗 [slide {index}] sending to Codex…")
+        print(f"🔗 [слайд {index}] отправляю в Codex…")
         saved = run_codex_image(prompt, output_path, self.aspect_ratio, refs, notes)
-        print(f"[OK] saved: {saved} ({saved.stat().st_size // 1024} KB)")
+        print(f"[OK] сохранено: {saved} ({saved.stat().st_size // 1024} КБ)")
         return str(saved)

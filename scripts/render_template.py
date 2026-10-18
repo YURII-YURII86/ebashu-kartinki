@@ -228,7 +228,7 @@ def check_render_backend() -> tuple[bool, list[str]]:
     try:
         from pptx import Presentation  # type: ignore
     except ImportError:
-        messages.append("python-pptx: unavailable (cannot run renderer smoke test)")
+        messages.append("python-pptx: нет (проверку рендера не запустить)")
         return False, messages
 
     with tempfile.TemporaryDirectory(prefix="ppt-render-check-") as temp_dir:
@@ -243,34 +243,34 @@ def check_render_backend() -> tuple[bool, list[str]]:
         if sys.platform == "win32":
             count = _try_powerpoint_render(probe_pptx, probe_out)
             if count:
-                messages.append("PowerPoint COM: OK (real conversion)")
+                messages.append("PowerPoint: работает (проверено конвертацией)")
                 return True, messages
-            messages.append("PowerPoint COM: unavailable or conversion failed")
+            messages.append("PowerPoint: нет или конвертация не удалась")
 
         if sys.platform == "darwin" and os.path.isdir("/Applications/Keynote.app"):
             count = _try_keynote_render(probe_pptx, probe_out, timeout=15)
             if count:
-                messages.append("Keynote: OK (real conversion)")
+                messages.append("Keynote: работает (проверено конвертацией)")
                 return True, messages
-            messages.append("Keynote: unavailable or conversion failed")
+            messages.append("Keynote: нет или конвертация не удалась")
 
         cli = _find_libreoffice()
         if cli:
             try:
                 _convert_pptx_to_pdf(probe_pptx, probe_out / "probe.pdf")
-                messages.append(f"LibreOffice: OK (real conversion, {cli})")
+                messages.append(f"LibreOffice: работает (проверено конвертацией, {cli})")
                 return True, messages
             except RuntimeError as exc:
                 messages.append(f"LibreOffice: conversion failed ({exc})")
         else:
-            messages.append("LibreOffice: unavailable")
+            messages.append("LibreOffice: нет")
 
-    messages.append("No usable PPTX renderer completed the smoke test")
+    messages.append("Нет рабочего рендера PPTX")
     if _LIBREOFFICE_PROBE_ERRORS:
         messages.extend(f"  - {err}" for err in _LIBREOFFICE_PROBE_ERRORS)
     messages.append(
-        "Fallback: manually export template slides as page-01.png, page-02.png, ... "
-        "and pass that directory with --template-images."
+        "Выход: экспортируйте страницы шаблона в page-01.png, page-02.png, … "
+        "и передайте папку через --template-images."
     )
     return False, messages
 

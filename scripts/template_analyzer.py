@@ -934,10 +934,13 @@ def _content_to_fields(content: str, properties: Dict[str, Any]) -> Dict[str, An
                 elif prop_key in ("value", "metric", "number"):
                     # extract number + unit
                     # a metric must start with a digit; lines without numbers get no metric
-                    m = re.search(r"[−-]?\d[\d\s.,]*(?:%|тыс\.?|млн|млрд|x|k|K|M|B|\+)?", cleaned)
+                    # "было → стало": the headline number is the result after the arrow
+                    tail = re.split(r"→|->|=>", cleaned)[-1]
+                    m = re.search(r"[−-]?\d[\d\s.,]*(?:%|тыс\.?|млн|млрд|x|k|K|M|B|с|\+)?", tail)
                     obj[prop_key] = m.group(0).strip() if m else ""
                 else:
-                    obj[prop_key] = desc_val or cleaned
+                    # a line without "name: desc" is only a name; repeating it as description duplicates text on the slide
+                    obj[prop_key] = desc_val
             items.append(obj)
         if items:
             fields[array_field] = items
@@ -1038,7 +1041,7 @@ if __name__ == "__main__":
     ]:
         if cand.exists():
             load_dotenv(cand, override=True)
-            print(f"loaded env: {cand}")
+            print(f"загружен .env: {cand}")
             break
 
     profile = analyze_template(args.pptx, args.images, rebuild=args.rebuild)
